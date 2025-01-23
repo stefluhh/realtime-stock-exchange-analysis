@@ -1,16 +1,14 @@
 ## Realtime stock exchange trade analyzer
 
-This is a hobby project that I work on from time to time. It deals with the algorithmic analysis of stock prices and stock volumes for different purposes, e.g. anomaly recognition.
+This is a hobby project that I work on intermittently. It focuses on the algorithmic analysis of stock prices and trading volumes for various purposes, such as anomaly detection.
 
-Technically, its a Spring Boot application using Kotlin and MongoDB.
+From a technical perspective, it is a Spring Boot application built with Kotlin and MongoDB.
 
-I use Polygon.io as a data provider, specifically the Trades WebSocket API. Trades represent each person's stock exchange trade This application is capable of streaming all trades from all U.S. exchanges in real time, aggregating them into different time intervals (currently 1-minute and 30-minute candles), and then running any analysis strategies on the generated 1-minute or 30-minute candles.
+I use Polygon.io as the data provider, specifically the Trades WebSocket API. Trades represent individual stock exchange transactions. This application is capable of streaming all trades from U.S. exchanges in real time, aggregating them into different time intervals (currently 1-minute and 30-minute candlesticks), and running analysis strategies on the generated candlesticks.
 
 ## Trades, not aggregates
 
-Since this application doesn't work on pre-aggregated data (see Darkpool section below), this application has to process all US stock exchange's trades itself.
-A trade represents every stock exchange transaction from all U.S. exchanges.
-This can amount to up to 20,000 trades per second, usually at the end of the day.
+Unlike applications that rely on pre-aggregated data (see the *Dark Pool Filter* section below), this application processes all individual trades from U.S. stock exchanges. Each trade corresponds to a single stock transaction. This results in processing up to 20,000 trades per second, especially during high-activity periods near the market close.
 
 ### Darkpool filter
 
@@ -24,17 +22,12 @@ The application is then going ahead aggregating the trades into 1-minute candles
 
 ## Analysis
 
-Every minute, a 1-minute candlestick for all incoming stock data (i.e., one candle per security) is finalized.
-This event triggers the `AnalysisService` and runs an analysis on all stock prices.
-Each analysis strategy can then either analyze the current candle directly or compare it to the previous candle, etc.
+At the end of each minute, the application finalizes a 1-minute candlestick for all incoming stock data (one candlestick per security). This event triggers the `AnalysisService`, which applies various analysis strategies to the stock data. Each strategy can analyze the current candlestick, compare it to the previous one, or use other methods of evaluation.
 
 ## VolumeAnalysisStrategy
 
-The volume-based analysis strategy focuses on detecting anomalies in the trading volume of a security. Volume increases of several hundred percent,
-often even several thousand percent within 1 or 2 minutes, are usually a clear signal that the security warrants closer examination.
+The volume-based analysis strategy is designed to detect anomalies in the trading volume of securities. Sudden volume increases of several hundred percent—or even several thousand percent—within 1 to 2 minutes often signal that the security warrants further attention.
 
-However, this strategy requires significantly more effort due to some inherent challenges. For example, trading volume naturally increases sharply
-shortly before market close, which the analysis strategy often mistakenly identifies as an anomaly and interprets as a buy signal. As a quick fix,
-the analysis is simply not conducted during the last 40 minutes before the market closes.
+However, this strategy presents significant challenges. For example, trading volumes naturally spike in the final minutes before the market closes, which the strategy may mistakenly identify as an anomaly and interpret as a buy signal. As a temporary solution, the analysis excludes trades made during the last 40 minutes of the trading session.
 
-Anyone interested is welcome to contribute to this strategy, as I have since transitioned to a news-based buy signal detection approach.
+Anyone interested is welcome to contribute to this strategy. I have since shifted my focus to a news-based approach for detecting buy signals.
