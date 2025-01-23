@@ -1,0 +1,25 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:mongo@localhost:28017/admin
+      database: stock
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    de.stefluhh: DEBUG
+
+application:
+  fetch-stock-price-history: false
+
+  analysis:
+    enabled: true
+
+  stockprice-streaming:
+    test: false
+    live: false
+  polygon-io:
+    apiKey: your-api-key
